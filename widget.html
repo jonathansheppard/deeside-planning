@@ -47,7 +47,7 @@ fetch('data/planning.json?t=' + Math.floor(Date.now() / 3600000)).then(r => r.js
   const waiting = all.filter(a => a.outcome === 'pending');
   const ar = all.filter(a => a.decided && a.decided >= d.from && (a.outcome === 'approved' || a.outcome === 'refused'));
   const pct = ar.length ? Math.round(ar.filter(a => a.outcome === 'approved').length / ar.length * 100) : null;
-  const latest = all.filter(a => a.registered).sort((x, y) => y.registered.localeCompare(x.registered)).slice(0, 3);
+  const latest = all.filter(a => a.registered).sort((x, y) => y.registered.localeCompare(x.registered)).slice(0, 5);
   document.getElementById('upd').textContent = 'Updated ' + new Date(d.updated).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
   document.getElementById('body').outerHTML =
     `<div class="stats">

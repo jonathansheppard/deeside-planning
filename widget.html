@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning in Flintshire</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --ink: #212529; --head: #2d2d2d; --muted: #6c757d; --rule: #e9ecef; --green: #88c425; --green-dk: #4d7a0c; --red: #b91c1c; }
+html, body { background: transparent; }
+body { font-family: 'Open Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+.card { display: block; background: #fff; border-top: 4px solid var(--green); }
+.card-hd { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px 10px; border-bottom: 1px solid var(--rule); }
+.card-hd h3 { font-size: 17px; font-weight: 800; color: var(--head); letter-spacing: -.2px; }
+.card-hd .upd { font-size: 11px; color: var(--muted); }
+.card-ft { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px 13px; border-top: 1px solid var(--rule); font-size: 13px; font-weight: 700; color: var(--green-dk); }
+.card-ft small { font-size: 10.5px; font-weight: 400; color: var(--muted); }
+.card:hover .card-ft span:first-child { text-decoration: underline; }
+.load { padding: 36px 14px; text-align: center; color: var(--muted); font-size: 12px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 10px 0; }
+.s { padding: 2px 12px; }
+.s + .s { border-left: 1px solid var(--rule); }
+.big { font-size: 26px; font-weight: 800; color: var(--head); letter-spacing: -1px; line-height: 1.1; }
+.lbl { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+.hd2 { border-top: 1px solid var(--rule); padding: 9px 14px 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.row { padding: 7px 14px; font-size: 13px; line-height: 1.35; }
+.row + .row { border-top: 1px solid var(--rule); }
+.row b { display: block; color: var(--head); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.row span { font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<a class="card" id="w" href="https://planning.deeside.com/" target="_top">
+  <div class="card-hd"><h3>Planning in Flintshire</h3><span class="upd" id="upd"></span></div>
+  <div class="load" id="body">Loading…</div>
+</a>
+<script>
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const day = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+const ago = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
+const place = a => { const parts = String(a.location || '').split(',').map(s => s.trim()).filter(Boolean);
+  return parts.length > 2 ? parts.slice(-3, -1).join(', ') : (a.community || '').replace(/ (Town|Community) Council$/, ''); };
+fetch('data/planning.json?t=' + Math.floor(Date.now() / 3600000)).then(r => r.json()).then(d => {
+  const all = d.applications;
+  const fresh = all.filter(a => a.registered && a.registered >= ago(14));
+  const waiting = all.filter(a => a.outcome === 'pending');
+  const ar = all.filter(a => a.decided && a.decided >= d.from && (a.outcome === 'approved' || a.outcome === 'refused'));
+  const pct = ar.length ? Math.round(ar.filter(a => a.outcome === 'approved').length / ar.length * 100) : null;
+  const latest = all.filter(a => a.registered).sort((x, y) => y.registered.localeCompare(x.registered)).slice(0, 3);
+  document.getElementById('upd').textContent = 'Updated ' + new Date(d.updated).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+  document.getElementById('body').outerHTML =
+    `<div class="stats">
+      <div class="s"><div class="big">${fresh.length}</div><div class="lbl">new in the last 14 days</div></div>
+      <div class="s"><div class="big">${waiting.length}</div><div class="lbl">waiting for a decision</div></div>
+      <div class="s"><div class="big">${pct == null ? '–' : pct + '%'}</div><div class="lbl">approval rate, last 90 days</div></div>
+    </div>
+    <div class="hd2">Latest applications</div>
+    ${latest.map(a => `<div class="row"><b>${esc(a.proposal)}</b><span>${esc(place(a))} · ${day(a.registered)}</span></div>`).join('')}
+    <div class="card-ft"><span>Search by postcode or street</span><small>Flintshire County Council</small></div>`;
+  size();
+}).catch(() => { document.getElementById('body').textContent = 'Planning applications are unavailable right now.'; size(); });
+function size() { try { parent.postMessage({deesideWidget: 'planning', height: document.getElementById('w').offsetHeight + 6}, '*'); } catch (e) {} }
+addEventListener('resize', size);
+if (window.ResizeObserver) new ResizeObserver(size).observe(document.getElementById('w'));
+</script>
+</body>
+</html>

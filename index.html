@@ -72,6 +72,14 @@ input:focus,select:focus{outline:2px solid var(--green);border-color:var(--green
  #map{height:320px}
  nav.site ul{display:none}nav.site .in{justify-content:center}
 }
+
+/* Loading state while the data file downloads (1 Nov 2026) */
+.skel b,.skel span{color:transparent!important;background:#e9ecef;border-radius:4px;animation:dspulse 1.1s ease-in-out infinite}
+.skel b{width:55%;min-height:1.1em}.skel span{display:inline-block;width:80%}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:22px 12px;color:#6c757d;font-size:14px}
+.loading::before{content:"";width:18px;height:18px;border:3px solid #e9ecef;border-top-color:#88c425;border-radius:50%;animation:dsspin .8s linear infinite}
+@keyframes dspulse{50%{opacity:.45}}@keyframes dsspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.skel b,.skel span,.loading::before{animation:none}}
 </style>
 <style>
 .dsf{--dsf-bg:#0d0d0d;--dsf-bar:#1a1a1a;--dsf-rule:#2c2c2c;--dsf-text:#bdbdbd;--dsf-accent:#88c425;background:var(--dsf-bg);color:var(--dsf-text);font-family:"Open Sans",Arial,sans-serif;font-size:15px;line-height:1.45}
@@ -105,7 +113,7 @@ input:focus,select:focus{outline:2px solid var(--green);border-color:var(--green
 <p class="lede">Every planning application sent to Flintshire County Council in the last 90 days, and every decision made. Search by postcode, street or reference number.</p>
 <p class="meta" id="meta">Loading the latest applications…</p>
 
-<div class="facts" id="facts"></div>
+<div class="facts" id="facts"><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div><div class="skel"><span>loading</span><b>000</b></div></div>
 
 <h2 class="sec">Search applications</h2>
 <div class="filters">
@@ -117,7 +125,7 @@ input:focus,select:focus{outline:2px solid var(--green);border-color:var(--green
 <div id="map" role="region" aria-label="Map of planning applications"></div>
 <p class="key"><span><i style="background:#000001"></i>Waiting for a decision</span><span><i style="background:#4D7A0C"></i>Approved</span><span><i style="background:#B91C1C"></i>Refused</span><span><i style="background:#9AA0A6"></i>Withdrawn or other</span></p>
 <p class="count" id="count"></p>
-<div id="results"></div>
+<div id="results"><p class="loading">Loading applications</p></div>
 <button class="more" id="more" hidden>Show more</button>
 
 <h2 class="sec">How planning applications work</h2>
@@ -257,7 +265,7 @@ fetch("data/planning.json",{cache:"no-cache"}).then(r=>r.json()).then(data=>{
   let t;q.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});
   oc.addEventListener("change",run);sel.addEventListener("change",run);
   run();
-}).catch(()=>{document.getElementById("meta").textContent="Sorry, the applications could not be loaded. Please try again shortly."});
+}).catch(()=>{document.getElementById("meta").textContent="Sorry, the applications could not be loaded. Please try again shortly.";["facts","results"].forEach(i=>document.getElementById(i).innerHTML="")});
 })();
 </script>
 </body>

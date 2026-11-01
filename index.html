@@ -215,7 +215,7 @@ fetch("data/planning.json",{cache:"no-cache"}).then(r=>r.json()).then(data=>{
     ["New in the last 14 days",reg(14)],["New in the last 30 days",reg(30)],["New in the last 90 days",reg(90)],
     ["Waiting for a decision",all.filter(a=>a.outcome==="pending").length],
     ["Decided in the last 90 days",dec.length],["Refused in the last 90 days",dec.filter(a=>a.outcome==="refused").length],
-    ["Approved, of those approved or refused",pct+"%"],["Typical time to a decision",med!=null?med+" days":"–"]
+    ["Approval rate, last 90 days",pct+"%"],["Typical time to a decision",med!=null?med+" days":"–"]
   ].map(f=>`<div><span>${f[0]}</span><b>${f[1]}</b></div>`).join("");
 
   all.forEach(a=>{

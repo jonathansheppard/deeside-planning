@@ -1,0 +1,5 @@
+*.tmp
+.DS_Store
+__pycache__/
+data/detail_cache.json
+data/constraints_cache.json

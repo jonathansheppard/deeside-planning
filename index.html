@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning applications in Flintshire | Deeside.com</title>
+<meta name="description" content="Search Flintshire planning applications from the last 90 days by postcode, street or reference. See what has been approved, refused or is still waiting for a decision. Updated three times a day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--green:#88C425;--green-dk:#4D7A0C;--black:#000001;--head:#2D2D2D;--ink:#212529;--muted:#6C757D;--rule:#E9ECEF;--grey-bg:#F2F3F3;--white:#FFFFFF;--amber-bg:#FFF4E0;--amber:#B45309;--red-bg:#FDECEC;--red:#B91C1C;--blue:#1D6FB8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--white);color:var(--ink);font-family:'Open Sans',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;line-height:1.6}
+a{color:var(--green-dk)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+nav.site{background:#000;min-height:80px;display:flex;align-items:center}
+nav.site .in{max-width:1140px;width:100%;margin:0 auto;padding:0 16px;display:flex;justify-content:space-between;align-items:center}
+nav.site .brand{display:block;max-width:250px;width:62%}
+nav.site .brand img{width:100%;display:block}
+nav.site ul{list-style:none;margin:0;padding:0}
+nav.site li{display:inline-block}
+nav.site li a{color:#fff;text-decoration:none;font-size:14px;margin:0 6px;text-transform:uppercase}
+.crumb{font-size:13px;color:var(--muted);margin:20px 0 0}
+.crumb a{color:var(--muted)}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.5px;margin:4px 0 8px;font-weight:800;color:var(--head)}
+.lede{font-size:17px;margin:0 0 4px;max-width:720px}
+.meta{font-size:13px;color:var(--muted);margin:0 0 20px}
+h2.sec{font-size:22px;font-weight:800;color:var(--black);margin:28px 0 12px;padding:0 0 6px;border-bottom:2px solid var(--black)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin:0 0 8px}
+.facts div{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:10px 12px}
+.facts span{display:block;font-size:12.5px;color:var(--muted)}
+.facts b{display:block;font-size:14.5px;font-weight:700;color:var(--head);font-variant-numeric:tabular-nums}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:0 0 12px}
+input,select{width:100%;font:inherit;font-size:16px;min-height:44px;padding:8px 10px;border:1px solid #ced4da;border-radius:4px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--green);border-color:var(--green)}
+#map{height:420px;border-top:4px solid var(--green);margin:0 0 6px;z-index:0}
+.key{font-size:13px;color:var(--muted);margin:0 0 16px;display:flex;flex-wrap:wrap;gap:4px 16px}
+.key i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:0}
+.count{font-size:13px;color:var(--muted);margin:0 0 4px}
+.app{border-top:1px solid var(--rule);padding:12px 0}
+.app:last-child{border-bottom:1px solid var(--rule)}
+.app .top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 3px}
+.lab{display:inline-block;font-size:13px;font-weight:700;padding:3px 7px;line-height:1.3}
+.lab.approved{background:var(--green-dk);color:#fff}
+.lab.refused{background:var(--red);color:#fff}
+.lab.withdrawn{background:var(--grey-bg);color:var(--head)}
+.lab.pending{background:var(--black);color:#fff}
+.lab.other{background:var(--grey-bg);color:var(--head)}
+.app .ref{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.app .loc{font-size:16px;font-weight:700;color:var(--head);line-height:1.35}
+.app .prop{margin:2px 0 4px}
+.app .dt{font-size:13px;color:var(--muted)}
+.cons{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px}
+.cons span{font-size:13px;font-weight:700;padding:3px 7px;line-height:1.3;background:var(--grey-bg);color:var(--head)}
+.cons span.fl{background:var(--amber-bg);color:var(--amber)}
+.app .links{font-size:13px;font-weight:700;margin-top:4px;display:flex;gap:16px;flex-wrap:wrap}
+.app button.onmap{font:inherit;font-weight:700;color:var(--green-dk);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.more{display:block;width:100%;margin:14px 0 0;font:inherit;font-size:15px;font-weight:700;min-height:44px;background:var(--black);color:#fff;border:0;border-radius:4px;cursor:pointer}
+.more[hidden]{display:none}
+.empty{color:var(--muted);padding:12px 0}
+.explain p{margin:0 0 10px;max-width:760px}
+.source{font-size:12.5px;color:var(--muted);margin:24px 0 28px;border-top:1px solid var(--rule);padding-top:10px}
+.leaflet-popup-content{font-family:'Open Sans',Arial,sans-serif;font-size:13px;line-height:1.45;margin:10px 12px}
+.leaflet-popup-content b{color:var(--head)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{border-radius:0;box-shadow:0 0 0 1px #ccc}
+@media (max-width:640px){
+ h1{font-size:28px}
+ .facts{grid-template-columns:1fr 1fr}
+ .filters{grid-template-columns:1fr 1fr}
+ .filters input{grid-column:1/-1}
+ #map{height:320px}
+ nav.site ul{display:none}nav.site .in{justify-content:center}
+}
+</style>
+<style>
+.dsf{--dsf-bg:#0d0d0d;--dsf-bar:#1a1a1a;--dsf-rule:#2c2c2c;--dsf-text:#bdbdbd;--dsf-accent:#88c425;background:var(--dsf-bg);color:var(--dsf-text);font-family:"Open Sans",Arial,sans-serif;font-size:15px;line-height:1.45}
+.dsf a{color:var(--dsf-text);text-decoration:none}
+.dsf a:hover{color:#fff;text-decoration:underline}
+.dsf .dsf-inner{max-width:1100px;margin:0 auto;padding:40px 16px 8px;display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:32px}
+.dsf .dsf-brand{display:flex;gap:16px;align-items:flex-start}
+.dsf .dsf-brand img{width:76px;height:76px;flex:none;border-radius:50%}
+.dsf .dsf-brand p{margin:0 0 12px}
+.dsf .dsf-brand a.dsf-cta{color:#fff;font-weight:600}
+.dsf .dsf-brand a.dsf-cta span{color:var(--dsf-accent)}
+.dsf .dsf-col h2{color:#fff;font-size:15px;font-weight:700;margin:0 0 8px;padding:0 0 8px;border-bottom:1px solid var(--dsf-rule)}
+.dsf ul{list-style:none;margin:0;padding:0}
+.dsf li a{display:block;padding:6px 0}
+.dsf .dsf-bar{background:var(--dsf-bar);margin-top:32px}
+.dsf .dsf-bar-inner{max-width:1100px;margin:0 auto;padding:14px 16px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;font-size:13px;color:#8a8a8a}
+.dsf .dsf-bar a{color:#8a8a8a}
+.dsf .dsf-partners a+a::before{content:"\00B7";margin:0 8px;color:#555}
+@media (max-width:900px){.dsf .dsf-inner{grid-template-columns:1fr 1fr 1fr}.dsf .dsf-brand{grid-column:1/-1}}
+@media (max-width:600px){.dsf .dsf-inner{grid-template-columns:1fr 1fr;gap:28px 20px;padding-top:32px}.dsf .dsf-about{grid-column:1/-1}.dsf .dsf-bar-inner{flex-direction:column}}
+</style>
+</head>
+<body>
+<nav class="site"><div class="in">
+<a class="brand" href="https://www.deeside.com/"><img src="img/deeside-logo2020nobadge.jpg" alt="Deeside.com"></a>
+<ul><li><a href="https://www.deeside.com/news/">Latest</a></li><li><a href="https://www.deeside.com/fuel-price-map/">Fuel prices</a></li><li><a href="https://www.deeside.com/police-and-crime/">Police</a></li><li><a href="https://www.deeside.com/contact/">Contact</a></li><li><a href="https://www.deeside.com/advertise/">Advertise</a></li></ul>
+</div></nav>
+<main class="wrap">
+<p class="crumb"><a href="https://www.deeside.com/">Deeside.com</a> &rsaquo; Live tools</p>
+<h1>Planning applications in Flintshire</h1>
+<p class="lede">Every planning application sent to Flintshire County Council in the last 90 days, and every decision made. Search by postcode, street or reference number.</p>
+<p class="meta" id="meta">Loading the latest applications…</p>
+
+<div class="facts" id="facts"></div>
+
+<h2 class="sec">Search applications</h2>
+<div class="filters">
+<input id="q" type="search" placeholder="e.g. CH5 4, Chester Road or FUL/000478/26" autocomplete="off" aria-label="Search by postcode, street, reference or proposal">
+<select id="outcome" aria-label="Status">
+<option value="">All statuses</option><option value="pending">Waiting for a decision</option><option value="approved">Approved</option><option value="refused">Refused</option><option value="withdrawn">Withdrawn</option><option value="other">Other decision</option></select>
+<select id="area" aria-label="Community"><option value="">All communities</option></select>
+</div>
+<div id="map" role="region" aria-label="Map of planning applications"></div>
+<p class="key"><span><i style="background:#000001"></i>Waiting for a decision</span><span><i style="background:#4D7A0C"></i>Approved</span><span><i style="background:#B91C1C"></i>Refused</span><span><i style="background:#9AA0A6"></i>Withdrawn or other</span></p>
+<p class="count" id="count"></p>
+<div id="results"></div>
+<button class="more" id="more" hidden>Show more</button>
+
+<h2 class="sec">How planning applications work</h2>
+<div class="explain">
+<p>Most applications are decided by council planning officers. Larger or disputed ones go to Flintshire County Council's Planning Committee, made up of councillors. The council aims to decide most applications within eight weeks.</p>
+<p>While an application is waiting for a decision, anyone can comment on it through the council's planning website. Comments have to be about planning issues, such as traffic, flooding, design or the effect on neighbours.</p>
+<p>Some entries are not new buildings. "Approval of details" applications sign off the conditions attached to an earlier permission, and tree applications (TPO) ask to cut or remove protected trees.</p>
+</div>
+
+<p class="source">Source: Flintshire County Council planning register (Agile Applications). Applications registered or decided in the last 90 days. Updated three times a day. Map positions are the council's grid reference for each site and may be approximate. Check the council's planning website for the official record. Map &copy; OpenStreetMap contributors.</p>
+</main>
+<footer class="dsf">
+  <div class="dsf-inner">
+    <div class="dsf-brand">
+      <img src="img/deeside-black-logofooter-new.jpg" alt="Deeside.com">
+      <div>
+        <p>Independent news for Deeside and Flintshire since 2014, covering the towns and villages along the River Dee and the border with Chester.</p>
+        <a class="dsf-cta" href="https://www.deeside.com/contact/">Got a story? Get in touch <span>&rarr;</span></a>
+      </div>
+    </div>
+    <div class="dsf-col"><h2>Live tools</h2><ul>
+      <li><a href="https://www.deeside.com/deeside-right-now/">Weather, warnings and tides</a></li>
+      <li><a href="https://www.deeside.com/deeside-live-traffic-information/">Live traffic</a></li>
+      <li><a href="https://www.deeside.com/fuel-price-map/">Fuel prices</a></li>
+      <li><a href="https://www.deeside.com/wrexham-bidston-line/">Wrexham to Bidston line</a></li>
+      <li><a href="https://www.deeside.com/police-and-crime/">Police and crime</a></li></ul></div>
+    <div class="dsf-col"><h2>Town guides</h2><ul>
+      <li><a href="https://www.deeside.com/buckley-guide/">Buckley</a></li>
+      <li><a href="https://www.deeside.com/connahs-quay-guide/">Connah's Quay</a></li>
+      <li><a href="https://www.deeside.com/flint-guide/">Flint</a></li>
+      <li><a href="https://www.deeside.com/mold-guide/">Mold</a></li>
+      <li><a href="https://www.deeside.com/shotton-queensferry-guide/">Shotton and Queensferry</a></li></ul></div>
+    <div class="dsf-col"><h2>Guides</h2><ul>
+      <li><a href="https://www.deeside.com/wepre-park/">Wepre Park</a></li>
+      <li><a href="https://www.deeside.com/a55-a494-junction-guide/">A55 and A494 junctions</a></li></ul></div>
+    <div class="dsf-col dsf-about"><h2>Deeside.com</h2><ul>
+      <li><a href="https://www.deeside.com/contact/">Contact us</a></li>
+      <li><a href="https://www.deeside.com/advertise/">Advertise</a></li>
+      <li><a href="https://www.deeside.com/complaints/">Complaints</a></li>
+      <li><a href="https://www.deeside.com/privacy-policy-further-information/">Privacy</a></li></ul></div>
+  </div>
+  <div class="dsf-bar"><div class="dsf-bar-inner">
+    <span>&copy; Deeside.com Est. 2014</span>
+    <span class="dsf-partners">Partner sites: <a href="https://www.wrexham.com/">Wrexham.com</a><a href="https://www.businesswales.com/">BusinessWales.com</a><a href="https://north.wales/">North.Wales</a><a href="https://news.wales">News.Wales</a></span>
+  </div></div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+const LABEL={pending:"Waiting for a decision",approved:"Approved",refused:"Refused",withdrawn:"Withdrawn",other:"Decided"};
+const COL={pending:"#000001",approved:"#4D7A0C",refused:"#B91C1C",withdrawn:"#9AA0A6",other:"#9AA0A6"};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=d=>d?new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}):"";
+const ago=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
+const norm=s=>String(s||"").toLowerCase().replace(/\s+/g,"");
+const label=a=>a.outcome==="other"&&a.decision?a.decision:LABEL[a.outcome];
+
+const map=L.map("map",{scrollWheelZoom:false}).setView([53.22,-3.13],10);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
+const layer=L.layerGroup().addTo(map);
+const markers={};
+
+function dates(a){
+  let s=`Registered ${fmt(a.registered)}`;
+  if(a.decided)s+=` · Decided ${fmt(a.decided)}`+(a.days!=null?` (${a.days} days)`:"");
+  else if(a.status)s+=` · ${esc(a.status)}`;
+  return s;
+}
+function popup(a){
+  return `<span class="lab ${a.outcome}">${esc(label(a))}</span><br><b>${esc(a.location)}</b><br>${esc(a.proposal.length>180?a.proposal.slice(0,178)+"…":a.proposal)}${cons(a)||"<br>"}<span style="color:#6C757D">${esc(a.ref)} · ${dates(a)}</span><br><a href="${a.url}" target="_blank" rel="noopener">Full details on the council website</a>`;
+}
+function cons(a){
+  if(!a.constraints||!a.constraints.length)return"";
+  return '<div class="cons">'+a.constraints.map(c=>`<span class="${/flood/i.test(c.c)?"fl":""}"${c.n&&c.n.length?` title="${esc(c.n.join(", "))}"`:""}>${esc(c.c)}</span>`).join("")+"</div>";
+}
+function row(a){
+  return `<div class="app"><div class="top"><span class="lab ${a.outcome}">${esc(label(a))}</span><span class="ref">${esc(a.ref)} · ${esc(a.type)}</span></div>`+
+   `<div class="loc">${esc(a.location)}</div><div class="prop">${esc(a.proposal)}</div>`+cons(a)+
+   `<div class="dt">${dates(a)}${a.community?` · ${esc(a.community)}`:""}${a.agent?` · Agent: ${esc(a.agent)}`:""}</div>`+
+   `<div class="links"><a href="${a.url}" target="_blank" rel="noopener">Council website</a>${a.lat?`<button class="onmap" data-id="${a.id}">Show on map</button>`:""}</div></div>`;
+}
+
+fetch("data/planning.json",{cache:"no-cache"}).then(r=>r.json()).then(data=>{
+  const all=data.applications;
+  const upd=new Date(data.updated);
+  document.getElementById("meta").textContent=`Updated ${upd.toLocaleString("en-GB",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})}. ${all.length} applications registered or decided since ${fmt(data.from)}.`;
+
+  const reg=n=>all.filter(a=>a.registered&&a.registered>=ago(n)).length;
+  const dec=all.filter(a=>a.decided&&a.decided>=data.from);
+  const ar=dec.filter(a=>a.outcome==="approved"||a.outcome==="refused");
+  const pct=ar.length?Math.round(ar.filter(a=>a.outcome==="approved").length/ar.length*100):0;
+  const ds=dec.filter(a=>a.days!=null&&(a.outcome==="approved"||a.outcome==="refused")).map(a=>a.days).sort((x,y)=>x-y);
+  const med=ds.length?ds[Math.floor(ds.length/2)]:null;
+  document.getElementById("facts").innerHTML=[
+    ["New in the last 14 days",reg(14)],["New in the last 30 days",reg(30)],["New in the last 90 days",reg(90)],
+    ["Waiting for a decision",all.filter(a=>a.outcome==="pending").length],
+    ["Decided in the last 90 days",dec.length],["Refused in the last 90 days",dec.filter(a=>a.outcome==="refused").length],
+    ["Approved, of those approved or refused",pct+"%"],["Typical time to a decision",med!=null?med+" days":"–"]
+  ].map(f=>`<div><span>${f[0]}</span><b>${f[1]}</b></div>`).join("");
+
+  all.forEach(a=>{
+    a._s=(a.ref+" "+a.location+" "+a.proposal+" "+a.community+" "+a.ward+" "+a.type+" "+a.agent).toLowerCase();
+    a._pc=norm(a.postcode);
+    if(a.lat){markers[a.id]=L.circleMarker([a.lat,a.lng],{radius:7,weight:1.5,color:"#fff",fillColor:COL[a.outcome],fillOpacity:.9}).bindPopup(popup(a))}
+  });
+  const sel=document.getElementById("area");
+  [...new Set(all.map(a=>a.community).filter(Boolean))].sort().forEach(c=>sel.insertAdjacentHTML("beforeend",`<option>${esc(c)}</option>`));
+
+  const q=document.getElementById("q"),oc=document.getElementById("outcome"),res=document.getElementById("results"),more=document.getElementById("more");
+  let hits=[],shown=0;
+  function page(){res.insertAdjacentHTML("beforeend",hits.slice(shown,shown+20).map(row).join(""));shown+=20;more.hidden=shown>=hits.length}
+  function run(){
+    const term=q.value.trim().toLowerCase(),words=term.split(/\s+/).filter(Boolean),tn=norm(term);
+    hits=all.filter(a=>(!oc.value||a.outcome===oc.value)&&(!sel.value||a.community===sel.value)&&
+      (!words.length||(tn.length>=2&&a._pc.startsWith(tn))||words.every(w=>a._s.includes(w))));
+    document.getElementById("count").textContent=`${hits.length} application${hits.length===1?"":"s"}`+(hits.some(a=>!a.lat)?` (${hits.filter(a=>!a.lat).length} not on the map)`:"");
+    res.innerHTML=hits.length?"":'<p class="empty">No applications match that search.</p>';shown=0;more.hidden=true;
+    if(hits.length)page();
+    layer.clearLayers();
+    const pts=[];
+    hits.forEach(a=>{if(markers[a.id]){layer.addLayer(markers[a.id]);pts.push([a.lat,a.lng])}});
+    if(pts.length&&(words.length||oc.value||sel.value))map.fitBounds(pts,{padding:[30,30],maxZoom:15});
+    else if(!words.length&&!oc.value&&!sel.value)map.setView([53.22,-3.13],10);
+  }
+  more.onclick=page;
+  res.addEventListener("click",e=>{const b=e.target.closest(".onmap");if(!b)return;const m=markers[b.dataset.id];if(!m)return;
+    document.getElementById("map").scrollIntoView({behavior:"smooth",block:"center"});map.setView(m.getLatLng(),16);m.openPopup()});
+  let t;q.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(run,200)});
+  oc.addEventListener("change",run);sel.addEventListener("change",run);
+  run();
+}).catch(()=>{document.getElementById("meta").textContent="Sorry, the applications could not be loaded. Please try again shortly."});
+})();
+</script>
+</body>
+</html>

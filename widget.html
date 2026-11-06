@@ -2,6 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8">
+<script>window.__e = fetch('data/planning.json?t=' + Math.floor(Date.now() / 3600000)).then(function (r) { return r.json(); });</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planning in Flintshire</title>
 <style>
@@ -41,7 +42,7 @@ const day = d => new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', {day: 'n
 const ago = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
 const place = a => { const parts = String(a.location || '').split(',').map(s => s.trim()).filter(Boolean);
   return parts.length > 2 ? parts.slice(-3, -1).join(', ') : (a.community || '').replace(/ (Town|Community) Council$/, ''); };
-fetch('data/planning.json?t=' + Math.floor(Date.now() / 3600000)).then(r => r.json()).then(d => {
+(window.__e || fetch('data/planning.json?t=' + Math.floor(Date.now() / 3600000)).then(r => r.json())).then(d => {
   const all = d.applications;
   const fresh = all.filter(a => a.registered && a.registered >= ago(14));
   const waiting = all.filter(a => a.outcome === 'pending');
